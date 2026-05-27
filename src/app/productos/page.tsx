@@ -28,17 +28,23 @@ export default async function CatalogoPage({ searchParams }: Props) {
   }
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-10">
-      <h1 className="text-3xl font-bold mb-8">Catálogo</h1>
-      <div className="flex flex-col gap-8 lg:flex-row">
-        <aside className="w-full lg:w-64 shrink-0">
+    <div className="mx-auto max-w-6xl px-6 py-12">
+      <p className="text-xs tracking-[0.3em] uppercase text-[#8A847C] mb-2">Colección</p>
+      <h1 className="text-2xl font-light text-[#111111] mb-10">
+        {params.categoria
+          ? categorias.find((c) => c.slug === params.categoria)?.nombre ?? 'Productos'
+          : 'Todos los productos'}
+      </h1>
+
+      <div className="flex flex-col gap-10 lg:flex-row">
+        <aside className="w-full lg:w-52 shrink-0">
           <FiltrosCatalogo categorias={categorias} />
         </aside>
         <div className="flex-1">
           {productos.length === 0 ? (
-            <p className="text-gray-400 text-center py-20">Sin productos disponibles.</p>
+            <p className="text-[#B5AFA8] text-center py-20 text-sm">Sin productos disponibles.</p>
           ) : (
-            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-3">
+            <div className="grid grid-cols-1 gap-px bg-[#E2DDD6] sm:grid-cols-2 xl:grid-cols-3">
               {productos.map((p) => (
                 <ProductoCard key={p.id} producto={p} />
               ))}

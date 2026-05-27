@@ -7,20 +7,20 @@ import Providers from '@/components/layout/Providers';
 const geist = Geist({ subsets: ['latin'], variable: '--font-geist' });
 
 export const metadata: Metadata = {
-  title: 'TiendaKit — Tienda Online',
-  description: 'Demo de tienda e-commerce con Next.js 15, NestJS y MercadoPago',
+  title: 'TiendaKit — Moda & Estilo',
+  description: 'Tienda de ropa y accesorios con pago seguro vía MercadoPago.',
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="es" className={`${geist.variable} h-full antialiased`}>
-      <body className="min-h-full flex flex-col bg-white text-gray-900">
+    <html lang="es" className={`${geist.variable} h-full`}>
+      <body className="min-h-full flex flex-col bg-[#F7F5F1] text-[#111111]">
         <Providers>
           <Navbar />
           <main className="flex-1">{children}</main>
-          <footer className="border-t py-6 text-center text-sm text-gray-500">
-            © {new Date().getFullYear()} TiendaKit · Demo por{' '}
-            <a href="https://github.com/KolisCode" className="underline hover:text-gray-700">
+          <footer className="border-t border-[#E2DDD6] bg-[#111111] py-8 text-center text-xs tracking-widest uppercase text-white/40">
+            © {new Date().getFullYear()} TiendaKit &nbsp;·&nbsp;{' '}
+            <a href="https://github.com/KolisCode" className="hover:text-white/70 transition-colors">
               KolisCode
             </a>
           </footer>

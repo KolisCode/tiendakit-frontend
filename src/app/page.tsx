@@ -12,7 +12,7 @@ export default async function Home() {
   try {
     [productos, categorias] = await Promise.all([getProductos(), getCategorias()]);
   } catch {
-    // API not running yet — show empty state
+    // API offline — show empty state
   }
 
   const destacados = productos.slice(0, 4);
@@ -20,33 +20,37 @@ export default async function Home() {
   return (
     <div>
       {/* Hero */}
-      <section className="bg-gradient-to-br from-indigo-600 to-violet-700 text-white py-24 px-4">
-        <div className="mx-auto max-w-3xl text-center">
-          <h1 className="text-4xl font-extrabold tracking-tight sm:text-5xl">
-            Bienvenido a TiendaKit
+      <section className="bg-[#111111] text-white px-6 py-28 sm:py-36">
+        <div className="mx-auto max-w-4xl">
+          <p className="text-xs tracking-[0.3em] uppercase text-[#C9B99A] mb-6">
+            Nueva colección
+          </p>
+          <h1 className="text-5xl sm:text-7xl font-light leading-[1.05] tracking-tight">
+            Estilo que<br />
+            <span className="italic">habla por ti.</span>
           </h1>
-          <p className="mt-4 text-lg text-indigo-100">
-            Productos de calidad con pago fácil y seguro vía MercadoPago.
+          <p className="mt-6 text-base text-white/50 max-w-sm">
+            Ropa y accesorios seleccionados. Pago seguro con MercadoPago.
           </p>
           <Link
             href="/productos"
-            className="mt-8 inline-block rounded-full bg-white px-8 py-3 font-semibold text-indigo-600 shadow hover:bg-indigo-50 transition-colors"
+            className="mt-10 inline-block border border-white/30 px-8 py-3 text-sm tracking-widest uppercase hover:bg-white hover:text-[#111111] transition-colors"
           >
-            Ver catálogo
+            Ver colección
           </Link>
         </div>
       </section>
 
       {/* Categorías */}
       {categorias.length > 0 && (
-        <section className="mx-auto max-w-6xl px-4 py-12">
-          <h2 className="text-2xl font-bold mb-6">Categorías</h2>
-          <div className="flex flex-wrap gap-3">
+        <section className="mx-auto max-w-6xl px-6 pt-16 pb-4">
+          <p className="text-xs tracking-[0.25em] uppercase text-[#8A847C] mb-5">Categorías</p>
+          <div className="flex flex-wrap gap-2">
             {categorias.map((cat) => (
               <Link
                 key={cat.id}
                 href={`/productos?categoria=${cat.slug}`}
-                className="rounded-full border border-indigo-200 bg-indigo-50 px-5 py-2 text-sm font-medium text-indigo-700 hover:bg-indigo-100 transition-colors"
+                className="border border-[#E2DDD6] px-5 py-2 text-xs tracking-widest uppercase text-[#8A847C] hover:border-[#111111] hover:text-[#111111] transition-colors"
               >
                 {cat.nombre}
               </Link>
@@ -56,29 +60,41 @@ export default async function Home() {
       )}
 
       {/* Productos destacados */}
-      <section className="mx-auto max-w-6xl px-4 pb-16">
-        <h2 className="text-2xl font-bold mb-6">Productos destacados</h2>
+      <section className="mx-auto max-w-6xl px-6 py-12 pb-20">
+        <p className="text-xs tracking-[0.25em] uppercase text-[#8A847C] mb-8">Destacados</p>
         {destacados.length === 0 ? (
-          <p className="text-gray-400 text-center py-16">
+          <p className="text-[#B5AFA8] text-center py-20 text-sm">
             Los productos aparecerán aquí cuando la API esté activa.
           </p>
         ) : (
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid grid-cols-1 gap-px bg-[#E2DDD6] sm:grid-cols-2 lg:grid-cols-4">
             {destacados.map((p) => (
               <ProductoCard key={p.id} producto={p} />
             ))}
           </div>
         )}
         {productos.length > 4 && (
-          <div className="mt-8 text-center">
+          <div className="mt-12 text-center">
             <Link
               href="/productos"
-              className="inline-block rounded-full border border-gray-300 px-8 py-3 text-sm font-medium hover:border-indigo-400 hover:text-indigo-600 transition-colors"
+              className="inline-block border border-[#111111] px-10 py-3 text-xs tracking-widest uppercase hover:bg-[#111111] hover:text-white transition-colors"
             >
-              Ver todos los productos
+              Ver todo
             </Link>
           </div>
         )}
+      </section>
+
+      {/* Banner editorial */}
+      <section className="bg-[#F0EDE7] px-6 py-20 text-center">
+        <p className="text-xs tracking-[0.3em] uppercase text-[#8A847C] mb-4">Envío incluido</p>
+        <h2 className="text-3xl sm:text-4xl font-light tracking-tight">
+          Pago 100% seguro.<br />
+          <span className="italic">Siempre.</span>
+        </h2>
+        <p className="mt-4 text-sm text-[#8A847C]">
+          Procesamos tu compra con MercadoPago — el método más usado en LATAM.
+        </p>
       </section>
     </div>
   );

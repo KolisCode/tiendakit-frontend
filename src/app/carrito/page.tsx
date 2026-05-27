@@ -9,11 +9,14 @@ export default function CarritoPage() {
 
   if (items.length === 0) {
     return (
-      <div className="mx-auto max-w-2xl px-4 py-20 text-center">
-        <p className="text-5xl mb-4">🛒</p>
-        <h1 className="text-2xl font-bold text-gray-700 mb-2">Tu carrito está vacío</h1>
-        <Link href="/productos" className="mt-4 inline-block text-indigo-600 hover:underline">
-          Ver productos
+      <div className="mx-auto max-w-2xl px-6 py-28 text-center">
+        <p className="text-xs tracking-[0.3em] uppercase text-[#8A847C] mb-6">Bolsa de compras</p>
+        <h1 className="text-2xl font-light text-[#111111] mb-6">Tu bolsa está vacía</h1>
+        <Link
+          href="/productos"
+          className="inline-block border border-[#111111] px-8 py-3 text-xs tracking-widest uppercase hover:bg-[#111111] hover:text-white transition-colors"
+        >
+          Explorar colección
         </Link>
       </div>
     );
@@ -26,10 +29,15 @@ export default function CarritoPage() {
   });
 
   return (
-    <div className="mx-auto max-w-5xl px-4 py-10">
-      <h1 className="text-3xl font-bold mb-8">Tu carrito</h1>
+    <div className="mx-auto max-w-5xl px-6 py-12">
+      <p className="text-xs tracking-[0.3em] uppercase text-[#8A847C] mb-2">Bolsa de compras</p>
+      <h1 className="text-2xl font-light text-[#111111] mb-10">
+        {items.reduce((s, i) => s + i.cantidad, 0)} {items.reduce((s, i) => s + i.cantidad, 0) === 1 ? 'artículo' : 'artículos'}
+      </h1>
+
       <div className="grid grid-cols-1 gap-10 lg:grid-cols-3">
-        <div className="lg:col-span-2 space-y-4">
+        {/* Items */}
+        <div className="lg:col-span-2 space-y-0 divide-y divide-[#E2DDD6]">
           {items.map(({ producto, cantidad }) => {
             const precio = Number(producto.precio).toLocaleString('es-CO', {
               style: 'currency',
@@ -37,49 +45,72 @@ export default function CarritoPage() {
               minimumFractionDigits: 0,
             });
             return (
-              <div key={producto.id} className="flex gap-4 rounded-2xl border border-gray-100 bg-white p-4 shadow-sm">
-                <div className="h-20 w-20 shrink-0 rounded-xl bg-gray-50 overflow-hidden">
+              <div key={producto.id} className="flex gap-5 py-6">
+                <div className="h-24 w-20 shrink-0 bg-[#F0EDE7] overflow-hidden">
                   {producto.imagenes[0] ? (
                     <Image
                       src={producto.imagenes[0]}
                       alt={producto.nombre}
                       width={80}
-                      height={80}
+                      height={96}
                       className="h-full w-full object-cover"
                     />
                   ) : (
-                    <div className="h-full flex items-center justify-center text-2xl text-gray-200">🛍️</div>
+                    <div className="h-full flex items-center justify-center text-[#C9B99A] text-xl">◈</div>
                   )}
                 </div>
                 <div className="flex flex-1 flex-col gap-1">
-                  <h3 className="font-semibold text-gray-900">{producto.nombre}</h3>
-                  <p className="text-sm text-gray-400">{producto.categoria.nombre}</p>
-                  <p className="font-bold text-gray-900">{precio}</p>
+                  <span className="text-[10px] tracking-[0.2em] uppercase text-[#8A847C]">
+                    {producto.categoria.nombre}
+                  </span>
+                  <h3 className="text-sm font-medium text-[#111111]">{producto.nombre}</h3>
+                  <p className="text-sm font-semibold text-[#111111] mt-1">{precio}</p>
                 </div>
-                <div className="flex flex-col items-end gap-2">
-                  <button onClick={() => quitar(producto.id)} className="text-xs text-gray-400 hover:text-red-500">✕</button>
-                  <div className="flex items-center rounded-lg border border-gray-200 overflow-hidden text-sm">
-                    <button onClick={() => actualizar(producto.id, cantidad - 1)} className="px-2 py-1 hover:bg-gray-50">−</button>
-                    <span className="px-3 py-1">{cantidad}</span>
-                    <button onClick={() => actualizar(producto.id, cantidad + 1)} className="px-2 py-1 hover:bg-gray-50">+</button>
+                <div className="flex flex-col items-end gap-3">
+                  <button
+                    onClick={() => quitar(producto.id)}
+                    className="text-xs text-[#B5AFA8] hover:text-[#111111] transition-colors"
+                  >
+                    Quitar
+                  </button>
+                  <div className="flex items-center border border-[#E2DDD6] text-sm">
+                    <button
+                      onClick={() => actualizar(producto.id, cantidad - 1)}
+                      className="px-3 py-1.5 hover:bg-[#F0EDE7] transition-colors"
+                    >
+                      −
+                    </button>
+                    <span className="px-3 py-1.5 min-w-[2rem] text-center text-[#111111]">{cantidad}</span>
+                    <button
+                      onClick={() => actualizar(producto.id, cantidad + 1)}
+                      className="px-3 py-1.5 hover:bg-[#F0EDE7] transition-colors"
+                    >
+                      +
+                    </button>
                   </div>
                 </div>
               </div>
             );
           })}
-          <button onClick={vaciar} className="text-sm text-gray-400 hover:text-red-500">
-            Vaciar carrito
-          </button>
+          <div className="pt-4">
+            <button
+              onClick={vaciar}
+              className="text-xs text-[#B5AFA8] hover:text-[#111111] transition-colors tracking-wide"
+            >
+              Vaciar bolsa
+            </button>
+          </div>
         </div>
 
+        {/* Resumen */}
         <div className="space-y-6">
-          <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
-            <h2 className="font-bold text-lg mb-4">Resumen</h2>
-            <div className="flex justify-between text-sm text-gray-600 mb-2">
+          <div className="border border-[#E2DDD6] bg-white p-6">
+            <p className="text-xs tracking-[0.25em] uppercase text-[#8A847C] mb-5">Resumen</p>
+            <div className="flex justify-between text-sm text-[#8A847C] mb-3">
               <span>Subtotal</span>
               <span>{totalFmt}</span>
             </div>
-            <div className="border-t pt-3 flex justify-between font-bold text-gray-900">
+            <div className="border-t border-[#E2DDD6] pt-4 flex justify-between font-semibold text-[#111111]">
               <span>Total</span>
               <span>{totalFmt}</span>
             </div>

@@ -8,18 +8,18 @@ export default function AgregarAlCarrito({ producto }: { producto: Producto }) {
   const agregar = useCarrito((s) => s.agregar);
 
   return (
-    <div className="flex items-center gap-4 mt-4">
-      <div className="flex items-center rounded-xl border border-gray-200 overflow-hidden">
+    <div className="flex flex-col gap-4">
+      <div className="flex items-center border border-[#E2DDD6] w-fit">
         <button
           onClick={() => setCantidad((c) => Math.max(1, c - 1))}
-          className="px-4 py-2 text-lg hover:bg-gray-50 transition-colors"
+          className="px-4 py-3 text-[#111111] hover:bg-[#F0EDE7] transition-colors"
         >
           −
         </button>
-        <span className="px-4 py-2 font-semibold min-w-[3rem] text-center">{cantidad}</span>
+        <span className="px-5 py-3 text-sm min-w-[3rem] text-center text-[#111111]">{cantidad}</span>
         <button
           onClick={() => setCantidad((c) => Math.min(producto.stock, c + 1))}
-          className="px-4 py-2 text-lg hover:bg-gray-50 transition-colors"
+          className="px-4 py-3 text-[#111111] hover:bg-[#F0EDE7] transition-colors"
         >
           +
         </button>
@@ -27,9 +27,9 @@ export default function AgregarAlCarrito({ producto }: { producto: Producto }) {
       <button
         onClick={() => agregar(producto, cantidad)}
         disabled={producto.stock === 0}
-        className="flex-1 rounded-full bg-indigo-600 py-3 font-semibold text-white hover:bg-indigo-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+        className="w-full bg-[#111111] py-4 text-xs tracking-widest uppercase text-white hover:bg-[#2D2D2D] disabled:bg-[#E2DDD6] disabled:text-[#B5AFA8] disabled:cursor-not-allowed transition-colors"
       >
-        {producto.stock === 0 ? 'Sin stock' : 'Agregar al carrito'}
+        {producto.stock === 0 ? 'Sin stock' : 'Agregar a la bolsa'}
       </button>
     </div>
   );

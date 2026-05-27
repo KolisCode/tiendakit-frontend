@@ -1,36 +1,70 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+<p align="center">
+  <img src="https://raw.githubusercontent.com/KolisCode/lotesRB/master/screenshots/readme-banner.png" alt="KolisCode Banner" width="100%"/>
+</p>
 
-## Getting Started
+# TiendaKit — Frontend
 
-First, run the development server:
+![Next.js](https://img.shields.io/badge/Next.js-15-000000?logo=nextdotjs&logoColor=white)
+![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript&logoColor=white)
+![Tailwind CSS](https://img.shields.io/badge/Tailwind-4-06B6D4?logo=tailwindcss&logoColor=white)
+![Zustand](https://img.shields.io/badge/Zustand-5-orange)
+![MercadoPago](https://img.shields.io/badge/MercadoPago-Checkout-009EE3)
+
+> Frontend del e-commerce TiendaKit. **API:** [tiendakit-api](https://github.com/KolisCode/tiendakit-api)
+
+Tienda online genérica adaptable a cualquier rubro. SSR para SEO, carrito persistente en localStorage y checkout real con MercadoPago.
+
+## Stack
+
+- **Next.js 15** App Router con SSR e ISR
+- **Tailwind CSS 4** — estilos utilitarios
+- **Zustand** — carrito persistente y estado admin
+- **React Query** — fetching y cache del panel admin
+- **Axios** — cliente HTTP con interceptor JWT
+
+## Requisitos
+
+- Node.js 20+
+- [tiendakit-api](https://github.com/KolisCode/tiendakit-api) corriendo en `localhost:3002`
+
+## Instalación
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Variables de entorno
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Crear `.env.local`:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```env
+NEXT_PUBLIC_API_URL=http://localhost:3002/api
+```
 
-## Learn More
+## Desarrollo
 
-To learn more about Next.js, take a look at the following resources:
+```bash
+npm run dev    # http://localhost:3000
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+---
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Páginas
 
-## Deploy on Vercel
+| Ruta | Tipo | Descripción |
+|------|------|-------------|
+| `/` | SSR + ISR | Hero, categorías, productos destacados |
+| `/productos` | SSR | Catálogo con filtros por categoría y precio |
+| `/productos/[slug]` | SSR | Detalle de producto con galería |
+| `/carrito` | Client | Carrito con resumen y formulario de checkout |
+| `/orden/confirmacion` | Client | Resultado del pago (pagado/pendiente/cancelado) |
+| `/admin/login` | Client | Login del panel admin |
+| `/admin/productos` | Client | CRUD de productos |
+| `/admin/ordenes` | Client | Vista de órdenes con stats y cambio de estado |
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Flujo de compra
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+1. Cliente agrega productos al carrito (Zustand, persiste en localStorage)
+2. En `/carrito`, completa nombre, email y teléfono
+3. Hace clic en "Pagar con MercadoPago" → redirige al checkout de MP
+4. MP redirige de vuelta a `/orden/confirmacion` con el estado del pago

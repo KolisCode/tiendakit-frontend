@@ -1,5 +1,6 @@
 'use client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import Link from 'next/link';
 import { adminGetOrdenes, adminActualizarEstadoOrden } from '@/lib/api';
 import { formatCOP } from '@/lib/format';
 import { Orden } from '@/types';
@@ -74,7 +75,9 @@ export default function AdminOrdenesPage() {
                 <tr key={o.id} className="hover:bg-[#F7F5F1] transition-colors">
                   <td className="px-4 py-3 text-[#B5AFA8] text-xs">#{o.id}</td>
                   <td className="px-4 py-3">
-                    <p className="font-medium text-[#111111]">{o.nombreComprador}</p>
+                    <Link href={`/admin/ordenes/${o.id}`} className="hover:underline">
+                      <p className="font-medium text-[#111111]">{o.nombreComprador}</p>
+                    </Link>
                     <p className="text-xs text-[#8A847C]">{o.emailComprador}</p>
                   </td>
                   <td className="px-4 py-3 text-center font-medium text-[#111111]">

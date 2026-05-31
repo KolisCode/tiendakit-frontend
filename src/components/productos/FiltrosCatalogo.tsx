@@ -38,6 +38,7 @@ export default function FiltrosCatalogo({ categorias }: Props) {
         <p className="text-[10px] tracking-[0.25em] uppercase text-[#8A847C] mb-4">Buscar</p>
         <div className="flex border-b border-[#E2DDD6] focus-within:border-[#111111] transition-colors">
           <input
+            key={sp.get('q') ?? ''}
             ref={searchRef}
             type="text"
             defaultValue={sp.get('q') ?? ''}

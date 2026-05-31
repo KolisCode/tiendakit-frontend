@@ -42,6 +42,9 @@ export const crearOrden = (data: unknown) =>
 export const getOrden = (id: number) =>
   api.get(`/ordenes/${id}`).then((r) => r.data);
 
+export const adminGetOrdenById = (id: number) =>
+  api.get(`/ordenes/${id}`).then((r) => r.data);
+
 export const adminLogin = (email: string, password: string) =>
   api.post('/auth/login', { email, password }).then((r) => r.data);
 

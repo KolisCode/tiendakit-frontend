@@ -1,0 +1,58 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+REMOTE_HOST="droplet"
+REMOTE_PATH="/var/www/tiendakit-frontend"
+PM2_NAME="tiendakit-frontend"
+PORT=3004
+LOG_FILE="/var/log/tiendakit-frontend-deploy.log"
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+
+log() { echo "[$(date '+%Y-%m-%d %H:%M:%S')] $*"; }
+
+CURRENT_BRANCH=$(git -C "$SCRIPT_DIR" rev-parse --abbrev-ref HEAD)
+if [ "$CURRENT_BRANCH" != "master" ]; then
+  echo "ERROR: Debes estar en 'master' para deployar (actual: $CURRENT_BRANCH)"
+  exit 1
+fi
+
+if ! git -C "$SCRIPT_DIR" diff --quiet || ! git -C "$SCRIPT_DIR" diff --cached --quiet; then
+  echo "ERROR: Hay cambios sin commitear. Haz commit o stash antes de deployar."
+  exit 1
+fi
+
+log "=== Deploy tiendakit-frontend iniciado ==="
+
+log "[1/4] Push a origin/master..."
+git -C "$SCRIPT_DIR" push origin master
+log "      push OK"
+
+log "[2/4] git pull + npm install + build en el droplet..."
+ssh "$REMOTE_HOST" "
+  cd $REMOTE_PATH
+  git pull origin master
+  npm install
+  npm run build
+"
+log "      build remoto OK"
+
+log "[3/4] pm2 restart $PM2_NAME..."
+ssh "$REMOTE_HOST" "pm2 restart $PM2_NAME"
+
+log "[4/4] Health check en puerto $PORT..."
+for i in {1..6}; do
+  sleep 5
+  HTTP_CODE=$(ssh "$REMOTE_HOST" "curl -s -o /dev/null -w '%{http_code}' --connect-timeout 3 http://localhost:$PORT/ 2>/dev/null" || echo "000")
+  if [ "$HTTP_CODE" != "000" ] && [ "$HTTP_CODE" != "" ]; then
+    COMMIT=$(git -C "$SCRIPT_DIR" rev-parse --short HEAD)
+    ssh "$REMOTE_HOST" "echo \"\$(date) Deploy OK — $COMMIT\" >> $LOG_FILE" 2>/dev/null || true
+    log "      HTTP $HTTP_CODE — OK"
+    log "=== Deploy completado ($COMMIT) ==="
+    exit 0
+  fi
+  log "      Intento $i/6 — esperando..."
+done
+
+echo "ERROR: Deploy completado pero servicio no responde en puerto $PORT."
+echo "Revisar logs: ssh droplet 'pm2 logs $PM2_NAME --lines 50'"
+exit 1

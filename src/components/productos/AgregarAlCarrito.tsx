@@ -2,10 +2,12 @@
 import { useState } from 'react';
 import { Producto } from '@/types';
 import { useCarrito } from '@/store/carrito';
+import { useToast } from '@/store/toast';
 
 export default function AgregarAlCarrito({ producto }: { producto: Producto }) {
   const [cantidad, setCantidad] = useState(1);
   const agregar = useCarrito((s) => s.agregar);
+  const toast = useToast((s) => s.agregar);
 
   return (
     <div className="flex flex-col gap-4">
@@ -25,7 +27,7 @@ export default function AgregarAlCarrito({ producto }: { producto: Producto }) {
         </button>
       </div>
       <button
-        onClick={() => agregar(producto, cantidad)}
+        onClick={() => { agregar(producto, cantidad); toast(producto.nombre, producto.imagenes[0] ?? null); }}
         disabled={producto.stock === 0}
         className="w-full bg-[#111111] py-4 text-xs tracking-widest uppercase text-white hover:bg-[#2D2D2D] disabled:bg-[#E2DDD6] disabled:text-[#B5AFA8] disabled:cursor-not-allowed transition-colors"
       >

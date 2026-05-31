@@ -1,3 +1,4 @@
+import { Suspense } from 'react';
 import { getCategorias, getProductos } from '@/lib/api';
 import { Producto, Categoria } from '@/types';
 import ProductoCard from '@/components/productos/ProductoCard';
@@ -6,7 +7,7 @@ import FiltrosCatalogo from '@/components/productos/FiltrosCatalogo';
 export const revalidate = 60;
 
 interface Props {
-  searchParams: Promise<{ categoria?: string; minPrecio?: string; maxPrecio?: string }>;
+  searchParams: Promise<{ categoria?: string; minPrecio?: string; maxPrecio?: string; sort?: string }>;
 }
 
 export default async function CatalogoPage({ searchParams }: Props) {
@@ -27,24 +28,43 @@ export default async function CatalogoPage({ searchParams }: Props) {
     /* API offline */
   }
 
+  if (params.sort === 'precio_asc') {
+    productos = [...productos].sort((a, b) => Number(a.precio) - Number(b.precio));
+  } else if (params.sort === 'precio_desc') {
+    productos = [...productos].sort((a, b) => Number(b.precio) - Number(a.precio));
+  }
+
+  const totalProductos = productos.length;
+
   return (
     <div className="mx-auto max-w-6xl px-6 py-12">
-      <p className="text-xs tracking-[0.3em] uppercase text-[#8A847C] mb-2">Colección</p>
-      <h1 className="text-2xl font-light text-[#111111] mb-10">
-        {params.categoria
-          ? categorias.find((c) => c.slug === params.categoria)?.nombre ?? 'Productos'
-          : 'Todos los productos'}
-      </h1>
+      <div className="flex items-end justify-between mb-10 border-b border-[#E2DDD6] pb-8">
+        <div>
+          <p className="text-[10px] tracking-[0.3em] uppercase text-[#8A847C] mb-2">Colección</p>
+          <h1 className="text-2xl font-light text-[#111111]">
+            {params.categoria
+              ? categorias.find((c) => c.slug === params.categoria)?.nombre ?? 'Productos'
+              : 'Todos los productos'}
+          </h1>
+        </div>
+        {totalProductos > 0 && (
+          <span className="text-xs text-[#B5AFA8] tracking-wide">
+            {totalProductos} {totalProductos === 1 ? 'pieza' : 'piezas'}
+          </span>
+        )}
+      </div>
 
       <div className="flex flex-col gap-10 lg:flex-row">
         <aside className="w-full lg:w-52 shrink-0">
-          <FiltrosCatalogo categorias={categorias} />
+          <Suspense>
+            <FiltrosCatalogo categorias={categorias} />
+          </Suspense>
         </aside>
         <div className="flex-1">
           {productos.length === 0 ? (
             <p className="text-[#B5AFA8] text-center py-20 text-sm">Sin productos disponibles.</p>
           ) : (
-            <div className="grid grid-cols-1 gap-px bg-[#E2DDD6] sm:grid-cols-2 xl:grid-cols-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 border-t border-l border-[#E2DDD6]">
               {productos.map((p) => (
                 <ProductoCard key={p.id} producto={p} />
               ))}

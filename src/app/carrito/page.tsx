@@ -1,11 +1,38 @@
 'use client';
+import { useState, useEffect } from 'react';
 import { useCarrito } from '@/store/carrito';
+import { formatCOP } from '@/lib/format';
 import Image from 'next/image';
 import Link from 'next/link';
 import CheckoutForm from '@/components/checkout/CheckoutForm';
 
+function CartImage({ src, slug, alt }: { src: string | null; slug: string; alt: string }) {
+  const [error, setError] = useState(false);
+  const imgSrc = !error ? (src || `/productos/${slug}.jpg`) : null;
+
+  if (!imgSrc) {
+    return <div className="h-full flex items-center justify-center text-[#C9B99A] text-2xl">◈</div>;
+  }
+
+  return (
+    <Image
+      src={imgSrc}
+      alt={alt}
+      width={112}
+      height={144}
+      className="h-full w-full object-cover"
+      onError={() => setError(true)}
+    />
+  );
+}
+
 export default function CarritoPage() {
   const { items, quitar, actualizar, total, vaciar } = useCarrito();
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+
+  // Antes del mount: evitar flash SSR vs localStorage
+  if (!mounted) return null;
 
   if (items.length === 0) {
     return (
@@ -22,42 +49,28 @@ export default function CarritoPage() {
     );
   }
 
-  const totalFmt = total().toLocaleString('es-CO', {
-    style: 'currency',
-    currency: 'COP',
-    minimumFractionDigits: 0,
-  });
+  const totalFmt = formatCOP(total());
 
   return (
     <div className="mx-auto max-w-5xl px-6 py-12">
       <p className="text-xs tracking-[0.3em] uppercase text-[#8A847C] mb-2">Bolsa de compras</p>
       <h1 className="text-2xl font-light text-[#111111] mb-10">
-        {items.reduce((s, i) => s + i.cantidad, 0)} {items.reduce((s, i) => s + i.cantidad, 0) === 1 ? 'artículo' : 'artículos'}
+        {(() => { const n = items.reduce((s, i) => s + i.cantidad, 0); return `${n} ${n === 1 ? 'artículo' : 'artículos'}`; })()}
       </h1>
 
       <div className="grid grid-cols-1 gap-10 lg:grid-cols-3">
         {/* Items */}
         <div className="lg:col-span-2 space-y-0 divide-y divide-[#E2DDD6]">
           {items.map(({ producto, cantidad }) => {
-            const precio = Number(producto.precio).toLocaleString('es-CO', {
-              style: 'currency',
-              currency: 'COP',
-              minimumFractionDigits: 0,
-            });
+            const precio = formatCOP(producto.precio);
             return (
               <div key={producto.id} className="flex gap-5 py-6">
-                <div className="h-24 w-20 shrink-0 bg-[#F0EDE7] overflow-hidden">
-                  {producto.imagenes[0] ? (
-                    <Image
-                      src={producto.imagenes[0]}
-                      alt={producto.nombre}
-                      width={80}
-                      height={96}
-                      className="h-full w-full object-cover"
-                    />
-                  ) : (
-                    <div className="h-full flex items-center justify-center text-[#C9B99A] text-xl">◈</div>
-                  )}
+                <div className="h-36 w-28 shrink-0 bg-[#F0EDE7] overflow-hidden">
+                  <CartImage
+                    src={producto.imagenes?.[0] ?? null}
+                    slug={producto.slug}
+                    alt={producto.nombre}
+                  />
                 </div>
                 <div className="flex flex-1 flex-col gap-1">
                   <span className="text-[10px] tracking-[0.2em] uppercase text-[#8A847C]">

@@ -1,12 +1,42 @@
-import { getProducto } from '@/lib/api';
+import { getProducto, getProductos } from '@/lib/api';
 import { notFound } from 'next/navigation';
+import { Metadata } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
 import AgregarAlCarrito from '@/components/productos/AgregarAlCarrito';
+import { formatCOP } from '@/lib/format';
 
 interface Props { params: Promise<{ slug: string }> }
 
 export const revalidate = 60;
+
+export async function generateStaticParams() {
+  try {
+    const productos = await getProductos();
+    return (productos as { slug: string }[]).map((p) => ({ slug: p.slug }));
+  } catch {
+    return [];
+  }
+}
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { slug } = await params;
+  try {
+    const p = await getProducto(slug);
+    const descripcion = p.descripcion ?? `${p.nombre} disponible en TiendaKit.`;
+    return {
+      title: `${p.nombre} — TiendaKit`,
+      description: descripcion,
+      openGraph: {
+        title: p.nombre,
+        description: descripcion,
+        images: p.imagenes[0] ? [{ url: p.imagenes[0], width: 600, height: 800 }] : [],
+      },
+    };
+  } catch {
+    return { title: 'Producto — TiendaKit' };
+  }
+}
 
 export default async function ProductoPage({ params }: Props) {
   const { slug } = await params;
@@ -17,11 +47,7 @@ export default async function ProductoPage({ params }: Props) {
     notFound();
   }
 
-  const precio = Number(producto.precio).toLocaleString('es-CO', {
-    style: 'currency',
-    currency: 'COP',
-    minimumFractionDigits: 0,
-  });
+  const precio = formatCOP(producto.precio);
 
   return (
     <div className="mx-auto max-w-5xl px-6 py-12">

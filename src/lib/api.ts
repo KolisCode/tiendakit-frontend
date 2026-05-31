@@ -10,6 +10,23 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
+api.interceptors.response.use(
+  (res) => res,
+  (err) => {
+    if (
+      err.response?.status === 401 &&
+      typeof window !== 'undefined' &&
+      window.location.pathname.startsWith('/admin') &&
+      !window.location.pathname.startsWith('/admin/login')
+    ) {
+      localStorage.removeItem('tk_token');
+      localStorage.removeItem('tiendakit-admin');
+      window.location.href = '/admin/login';
+    }
+    return Promise.reject(err);
+  },
+);
+
 export const getProductos = (params?: Record<string, string>) =>
   api.get('/productos', { params }).then((r) => r.data);
 
@@ -29,7 +46,7 @@ export const adminLogin = (email: string, password: string) =>
   api.post('/auth/login', { email, password }).then((r) => r.data);
 
 export const adminGetProductos = () =>
-  api.get('/productos?activo=all').then((r) => r.data);
+  api.get('/productos?incluirInactivos=true').then((r) => r.data);
 
 export const adminGetOrdenes = () =>
   api.get('/ordenes').then((r) => r.data);
@@ -48,6 +65,18 @@ export const adminActualizarEstadoOrden = (id: number, estado: string) =>
 
 export const adminEstadisticas = () =>
   api.get('/ordenes/estadisticas').then((r) => r.data);
+
+export const adminGetProductoById = (id: number) =>
+  api.get(`/productos/by-id/${id}`).then((r) => r.data);
+
+export const adminCrearCategoria = (data: { nombre: string; slug: string }) =>
+  api.post('/categorias', data).then((r) => r.data);
+
+export const adminActualizarCategoria = (id: number, data: { nombre?: string; slug?: string }) =>
+  api.put(`/categorias/${id}`, data).then((r) => r.data);
+
+export const adminEliminarCategoria = (id: number) =>
+  api.delete(`/categorias/${id}`).then((r) => r.data);
 
 export const subirImagen = (file: File) => {
   const form = new FormData();

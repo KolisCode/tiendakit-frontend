@@ -43,7 +43,9 @@ export const useCarrito = create<CarritoState>()(
             cantidad <= 0
               ? state.items.filter((i) => i.producto.id !== productoId)
               : state.items.map((i) =>
-                  i.producto.id === productoId ? { ...i, cantidad } : i,
+                  i.producto.id === productoId
+                    ? { ...i, cantidad: Math.min(cantidad, i.producto.stock) }
+                    : i,
                 ),
         })),
 

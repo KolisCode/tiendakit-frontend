@@ -1,14 +1,16 @@
 'use client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { adminGetOrdenes, adminActualizarEstadoOrden, adminEstadisticas } from '@/lib/api';
+import { adminGetOrdenes, adminActualizarEstadoOrden } from '@/lib/api';
+import { formatCOP } from '@/lib/format';
 import { Orden } from '@/types';
 
 const ESTADOS = ['PENDIENTE', 'PAGADO', 'ENVIADO', 'CANCELADO'] as const;
-const ESTADO_COLOR: Record<string, string> = {
-  PENDIENTE: 'bg-yellow-100 text-yellow-700',
-  PAGADO: 'bg-green-100 text-green-700',
-  ENVIADO: 'bg-blue-100 text-blue-700',
-  CANCELADO: 'bg-red-100 text-red-600',
+
+const ESTADO_STYLE: Record<string, string> = {
+  PENDIENTE: 'bg-amber-50 text-amber-600',
+  PAGADO:    'bg-emerald-50 text-emerald-600',
+  ENVIADO:   'bg-sky-50 text-sky-600',
+  CANCELADO: 'bg-red-50 text-red-500',
 };
 
 export default function AdminOrdenesPage() {
@@ -16,11 +18,6 @@ export default function AdminOrdenesPage() {
   const { data: ordenes = [], isLoading } = useQuery<Orden[]>({
     queryKey: ['admin-ordenes'],
     queryFn: adminGetOrdenes,
-  });
-
-  const { data: stats = [] } = useQuery({
-    queryKey: ['admin-estadisticas'],
-    queryFn: adminEstadisticas,
   });
 
   const actualizarEstado = useMutation({
@@ -33,73 +30,69 @@ export default function AdminOrdenesPage() {
     .filter((o) => o.estado === 'PAGADO' || o.estado === 'ENVIADO')
     .reduce((s, o) => s + Number(o.total), 0);
 
-  if (isLoading) return <p className="text-gray-400">Cargando...</p>;
+  const pendientes = ordenes.filter((o) => o.estado === 'PENDIENTE').length;
 
   return (
     <div>
-      <h1 className="text-2xl font-bold mb-6">Órdenes</h1>
-
-      {/* Stats */}
-      <div className="grid grid-cols-3 gap-4 mb-8">
-        <div className="rounded-2xl border border-gray-100 p-5 bg-white shadow-sm">
-          <p className="text-sm text-gray-500">Total órdenes</p>
-          <p className="text-3xl font-bold mt-1">{ordenes.length}</p>
-        </div>
-        <div className="rounded-2xl border border-gray-100 p-5 bg-white shadow-sm">
-          <p className="text-sm text-gray-500">Ingresos</p>
-          <p className="text-3xl font-bold mt-1">
-            {totalPagado.toLocaleString('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0 })}
-          </p>
-        </div>
-        <div className="rounded-2xl border border-gray-100 p-5 bg-white shadow-sm">
-          <p className="text-sm text-gray-500">Pendientes</p>
-          <p className="text-3xl font-bold mt-1 text-yellow-600">
-            {ordenes.filter((o) => o.estado === 'PENDIENTE').length}
-          </p>
-        </div>
+      <div className="mb-8">
+        <p className="text-[10px] tracking-[0.25em] uppercase text-[#8A847C] mb-1">Gestión</p>
+        <h1 className="text-xl font-light text-[#111111]">Órdenes</h1>
       </div>
 
-      {/* Tabla */}
-      {ordenes.length === 0 ? (
-        <p className="text-gray-400">Sin órdenes aún.</p>
+      {/* Stats */}
+      <div className="grid grid-cols-3 gap-4 mb-10">
+        {[
+          { label: 'Total órdenes', value: ordenes.length, className: '' },
+          { label: 'Ingresos', value: formatCOP(totalPagado), className: '' },
+          { label: 'Pendientes', value: pendientes, className: pendientes > 0 ? 'text-amber-600' : '' },
+        ].map(({ label, value, className }) => (
+          <div key={label} className="border border-[#E2DDD6] bg-white p-5">
+            <p className="text-[10px] tracking-[0.2em] uppercase text-[#8A847C] mb-2">{label}</p>
+            <p className={`text-2xl font-light ${className || 'text-[#111111]'}`}>{value}</p>
+          </div>
+        ))}
+      </div>
+
+      {isLoading ? (
+        <p className="text-sm text-[#8A847C]">Cargando...</p>
+      ) : ordenes.length === 0 ? (
+        <p className="text-sm text-[#B5AFA8]">Sin órdenes aún.</p>
       ) : (
-        <div className="overflow-auto rounded-xl border border-gray-100">
+        <div className="border border-[#E2DDD6] overflow-auto">
           <table className="w-full text-sm">
-            <thead className="bg-gray-50 text-gray-500 text-xs uppercase">
+            <thead className="border-b border-[#E2DDD6] bg-[#F7F5F1]">
               <tr>
-                <th className="px-4 py-3 text-left">#</th>
-                <th className="px-4 py-3 text-left">Comprador</th>
-                <th className="px-4 py-3 text-right">Total</th>
-                <th className="px-4 py-3 text-center">Estado</th>
-                <th className="px-4 py-3 text-left">Fecha</th>
-                <th className="px-4 py-3 text-right">Cambiar estado</th>
+                {['#', 'Comprador', 'Total', 'Estado', 'Fecha', 'Cambiar estado'].map((h, i) => (
+                  <th key={h} className={`px-4 py-3 text-[10px] tracking-[0.2em] uppercase text-[#8A847C] ${i > 1 ? 'text-center' : 'text-left'} last:text-right`}>
+                    {h}
+                  </th>
+                ))}
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
+            <tbody className="divide-y divide-[#E2DDD6] bg-white">
               {ordenes.map((o) => (
-                <tr key={o.id} className="hover:bg-gray-50">
-                  <td className="px-4 py-3 text-gray-400">#{o.id}</td>
-                  <td className="px-4 py-3 font-medium text-gray-900">
-                    <div>{o.nombreComprador}</div>
-                    <div className="text-xs text-gray-400">{o.emailComprador}</div>
+                <tr key={o.id} className="hover:bg-[#F7F5F1] transition-colors">
+                  <td className="px-4 py-3 text-[#B5AFA8] text-xs">#{o.id}</td>
+                  <td className="px-4 py-3">
+                    <p className="font-medium text-[#111111]">{o.nombreComprador}</p>
+                    <p className="text-xs text-[#8A847C]">{o.emailComprador}</p>
                   </td>
-                  <td className="px-4 py-3 text-right font-medium">
-                    {Number(o.total).toLocaleString('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0 })}
+                  <td className="px-4 py-3 text-center font-medium text-[#111111]">
+                    {formatCOP(o.total)}
                   </td>
                   <td className="px-4 py-3 text-center">
-                    <span className={`inline-block rounded-full px-2.5 py-0.5 text-xs font-medium ${ESTADO_COLOR[o.estado]}`}>
+                    <span className={`inline-block px-2.5 py-0.5 text-[10px] tracking-widest uppercase ${ESTADO_STYLE[o.estado]}`}>
                       {o.estado}
                     </span>
                   </td>
-                  <td className="px-4 py-3 text-gray-400">
-                    {new Date(o.createdAt).toLocaleDateString('es-CO')}
+                  <td className="px-4 py-3 text-center text-xs text-[#8A847C]">
+                    {(() => { const d = new Date(o.createdAt); return `${d.getDate()}/${d.getMonth() + 1}/${d.getFullYear()}`; })()}
                   </td>
                   <td className="px-4 py-3 text-right">
                     <select
                       value={o.estado}
                       onChange={(e) => actualizarEstado.mutate({ id: o.id, estado: e.target.value })}
-                      className="rounded-lg border border-gray-200 px-2 py-1 text-xs focus:border-indigo-400 focus:outline-none"
-                    >
+                      className="border border-[#E2DDD6] bg-white px-2 py-1 text-xs text-[#111111] focus:border-[#111111] focus:outline-none">
                       {ESTADOS.map((est) => (
                         <option key={est} value={est}>{est}</option>
                       ))}

@@ -1,9 +1,8 @@
 'use client';
-import { useEffect } from 'react';
+import { useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { useCarrito } from '@/store/carrito';
-import { Suspense } from 'react';
 
 function ConfirmacionContent() {
   const sp = useSearchParams();
@@ -16,33 +15,60 @@ function ConfirmacionContent() {
   }, [estado, vaciar]);
 
   const ok = estado === 'pagado';
+  const pendiente = estado === 'pendiente';
 
   return (
-    <div className="mx-auto max-w-lg px-4 py-20 text-center">
-      <p className="text-6xl mb-6">{ok ? '✅' : estado === 'pendiente' ? '⏳' : '❌'}</p>
-      <h1 className="text-2xl font-bold text-gray-900 mb-3">
-        {ok ? '¡Pago exitoso!' : estado === 'pendiente' ? 'Pago pendiente' : 'Pago cancelado'}
-      </h1>
-      <p className="text-gray-500 mb-2">
-        {ok
-          ? `Tu orden #${ordenId} fue procesada correctamente.`
-          : estado === 'pendiente'
-          ? `Tu orden #${ordenId} está pendiente de confirmación.`
-          : 'El pago no fue completado. Tu carrito sigue guardado.'}
+    <div className="mx-auto max-w-lg px-6 py-28 text-center">
+      {/* Indicador visual */}
+      <div className="mb-8 flex justify-center">
+        <div
+          className={`flex h-16 w-16 items-center justify-center border ${
+            ok
+              ? 'border-[#111111] text-[#111111]'
+              : pendiente
+              ? 'border-[#C9B99A] text-[#C9B99A]'
+              : 'border-[#B5AFA8] text-[#B5AFA8]'
+          }`}
+        >
+          <span className="text-2xl">
+            {ok ? '✓' : pendiente ? '◌' : '✕'}
+          </span>
+        </div>
+      </div>
+
+      <p className="text-[10px] tracking-[0.3em] uppercase text-[#8A847C] mb-3">
+        {ok ? 'Pago exitoso' : pendiente ? 'En proceso' : 'Pago cancelado'}
       </p>
-      <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-center">
+
+      <h1 className="text-2xl font-light text-[#111111] mb-4">
+        {ok
+          ? 'Tu orden fue confirmada.'
+          : pendiente
+          ? 'Pago pendiente de confirmación.'
+          : 'El pago no fue completado.'}
+      </h1>
+
+      <p className="text-sm text-[#8A847C] leading-relaxed">
+        {ok
+          ? `Orden #${ordenId} procesada correctamente. Recibirás tu pedido pronto.`
+          : pendiente
+          ? `Orden #${ordenId} — estamos esperando la confirmación del pago.`
+          : 'No se realizó ningún cargo. Tu bolsa sigue guardada.'}
+      </p>
+
+      <div className="mt-12 flex flex-col sm:flex-row items-center justify-center gap-4">
         <Link
           href="/productos"
-          className="rounded-full bg-indigo-600 px-8 py-3 font-semibold text-white hover:bg-indigo-700 transition-colors"
+          className="inline-block bg-[#111111] text-white px-10 py-3.5 text-xs tracking-widest uppercase hover:bg-[#2D2D2D] transition-colors"
         >
           Seguir comprando
         </Link>
         {!ok && (
           <Link
             href="/carrito"
-            className="rounded-full border border-gray-300 px-8 py-3 font-semibold hover:border-indigo-400 hover:text-indigo-600 transition-colors"
+            className="inline-block border border-[#E2DDD6] px-10 py-3.5 text-xs tracking-widest uppercase text-[#8A847C] hover:border-[#111111] hover:text-[#111111] transition-colors"
           >
-            Volver al carrito
+            Volver a la bolsa
           </Link>
         )}
       </div>

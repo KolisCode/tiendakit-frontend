@@ -1,5 +1,6 @@
 'use client';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { useRef } from 'react';
 import { Categoria } from '@/types';
 
 interface Props { categorias: Categoria[] }
@@ -13,6 +14,7 @@ const SORT_OPTIONS = [
 export default function FiltrosCatalogo({ categorias }: Props) {
   const router = useRouter();
   const sp = useSearchParams();
+  const searchRef = useRef<HTMLInputElement>(null);
 
   const setParam = (key: string, value: string) => {
     const params = new URLSearchParams(sp.toString());
@@ -21,11 +23,32 @@ export default function FiltrosCatalogo({ categorias }: Props) {
     router.push(`/productos?${params.toString()}`);
   };
 
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    setParam('q', searchRef.current?.value.trim() ?? '');
+  };
+
   const activeLinkCls = 'font-semibold text-[#111111]';
   const inactiveLinkCls = 'text-[#8A847C] hover:text-[#111111]';
 
   return (
     <div className="space-y-8">
+      {/* Búsqueda */}
+      <form onSubmit={handleSearch}>
+        <p className="text-[10px] tracking-[0.25em] uppercase text-[#8A847C] mb-4">Buscar</p>
+        <div className="flex border-b border-[#E2DDD6] focus-within:border-[#111111] transition-colors">
+          <input
+            ref={searchRef}
+            type="text"
+            defaultValue={sp.get('q') ?? ''}
+            placeholder="Nombre o descripción..."
+            className="flex-1 bg-transparent py-2 text-sm text-[#111111] placeholder:text-[#B5AFA8] focus:outline-none"
+          />
+          <button type="submit" className="pl-2 text-[#8A847C] hover:text-[#111111] transition-colors text-xs">
+            →
+          </button>
+        </div>
+      </form>
       {/* Categoría */}
       <div>
         <p className="text-[10px] tracking-[0.25em] uppercase text-[#8A847C] mb-4">Categoría</p>

@@ -1,9 +1,9 @@
 import { getProducto, getProductos } from '@/lib/api';
 import { notFound } from 'next/navigation';
 import { Metadata } from 'next';
-import Image from 'next/image';
 import Link from 'next/link';
 import AgregarAlCarrito from '@/components/productos/AgregarAlCarrito';
+import GaleriaProducto from '@/components/productos/GaleriaProducto';
 import { formatCOP } from '@/lib/format';
 
 interface Props { params: Promise<{ slug: string }> }
@@ -62,25 +62,7 @@ export default async function ProductoPage({ params }: Props) {
 
       <div className="grid grid-cols-1 gap-12 md:grid-cols-2">
         {/* Galería */}
-        <div className="space-y-2">
-          {producto.imagenes.length > 0 ? (
-            producto.imagenes.map((img: string, i: number) => (
-              <div key={i} className="aspect-[3/4] overflow-hidden bg-[#F0EDE7]">
-                <Image
-                  src={img}
-                  alt={producto.nombre}
-                  width={600}
-                  height={800}
-                  className="h-full w-full object-cover"
-                />
-              </div>
-            ))
-          ) : (
-            <div className="aspect-[3/4] flex items-center justify-center bg-[#F0EDE7] text-[#C9B99A] text-6xl">
-              ◈
-            </div>
-          )}
-        </div>
+        <GaleriaProducto imagenes={producto.imagenes} nombre={producto.nombre} />
 
         {/* Info — sticky en desktop */}
         <div className="flex flex-col gap-6 md:sticky md:top-24 md:self-start">

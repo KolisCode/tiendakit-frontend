@@ -7,7 +7,7 @@ import FiltrosCatalogo from '@/components/productos/FiltrosCatalogo';
 export const revalidate = 60;
 
 interface Props {
-  searchParams: Promise<{ categoria?: string; minPrecio?: string; maxPrecio?: string; sort?: string }>;
+  searchParams: Promise<{ categoria?: string; minPrecio?: string; maxPrecio?: string; sort?: string; q?: string }>;
 }
 
 export default async function CatalogoPage({ searchParams }: Props) {
@@ -21,17 +21,13 @@ export default async function CatalogoPage({ searchParams }: Props) {
         ...(params.categoria && { categoria: params.categoria }),
         ...(params.minPrecio && { minPrecio: params.minPrecio }),
         ...(params.maxPrecio && { maxPrecio: params.maxPrecio }),
+        ...(params.sort     && { sort: params.sort }),
+        ...(params.q        && { q: params.q }),
       }),
       getCategorias(),
     ]);
   } catch {
     /* API offline */
-  }
-
-  if (params.sort === 'precio_asc') {
-    productos = [...productos].sort((a, b) => Number(a.precio) - Number(b.precio));
-  } else if (params.sort === 'precio_desc') {
-    productos = [...productos].sort((a, b) => Number(b.precio) - Number(a.precio));
   }
 
   const totalProductos = productos.length;
@@ -42,7 +38,9 @@ export default async function CatalogoPage({ searchParams }: Props) {
         <div>
           <p className="text-[10px] tracking-[0.3em] uppercase text-[#8A847C] mb-2">Colección</p>
           <h1 className="text-2xl font-light text-[#111111]">
-            {params.categoria
+            {params.q
+              ? `Resultados para "${params.q}"`
+              : params.categoria
               ? categorias.find((c) => c.slug === params.categoria)?.nombre ?? 'Productos'
               : 'Todos los productos'}
           </h1>

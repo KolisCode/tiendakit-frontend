@@ -51,10 +51,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               <div>
                 <p className="text-[10px] tracking-[0.25em] uppercase text-white/40 mb-5">Información</p>
                 <ul className="space-y-3 text-sm text-white/60">
-                  <li><span className="cursor-default">Envíos y devoluciones</span></li>
-                  <li><span className="cursor-default">Guía de tallas</span></li>
-                  <li><span className="cursor-default">Pagos seguros</span></li>
-                  <li><span className="cursor-default">Contacto</span></li>
+                  <li><Link href="/info/envios" className="hover:text-white transition-colors">Envíos y devoluciones</Link></li>
+                  <li><Link href="/info/tallas" className="hover:text-white transition-colors">Guía de tallas</Link></li>
+                  <li><Link href="/info/pagos" className="hover:text-white transition-colors">Pagos seguros</Link></li>
+                  <li><Link href="/contacto" className="hover:text-white transition-colors">Contacto</Link></li>
                 </ul>
               </div>
             </div>

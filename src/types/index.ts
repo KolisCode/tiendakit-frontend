@@ -15,6 +15,7 @@ export interface Producto {
   activo: boolean;
   categoria: Categoria;
   createdAt: string;
+  updatedAt: string;
 }
 
 export interface ItemCarrito {

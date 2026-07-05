@@ -1,4 +1,5 @@
 import { Suspense } from 'react';
+import type { Metadata } from 'next';
 import { getCategorias, getProductos } from '@/lib/api';
 import { Producto, Categoria } from '@/types';
 import ProductoCard from '@/components/productos/ProductoCard';
@@ -8,6 +9,21 @@ export const revalidate = 60;
 
 interface Props {
   searchParams: Promise<{ categoria?: string; minPrecio?: string; maxPrecio?: string; sort?: string; q?: string }>;
+}
+
+export async function generateMetadata({ searchParams }: Props): Promise<Metadata> {
+  const params = await searchParams;
+  if (params.q) {
+    return { title: `"${params.q}" — TiendaKit`, description: `Resultados para "${params.q}" en TiendaKit.` };
+  }
+  if (params.categoria) {
+    const nombre = params.categoria.charAt(0).toUpperCase() + params.categoria.slice(1);
+    return { title: `${nombre} — TiendaKit`, description: `Colección de ${nombre.toLowerCase()} disponible en TiendaKit.` };
+  }
+  return {
+    title: 'Colección — TiendaKit',
+    description: 'Ropa y accesorios seleccionados con criterio editorial. Pago seguro con MercadoPago.',
+  };
 }
 
 export default async function CatalogoPage({ searchParams }: Props) {
